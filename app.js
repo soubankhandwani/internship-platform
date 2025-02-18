@@ -20,4 +20,8 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use(errorHandler);
 
+app.get('/', (req, res) => {
+  res.status(200).json({ message: 'Hello, World!' })
+});
+
 app.listen(PORT, () => console.log(`Server is listening on port: ${PORT}`));
