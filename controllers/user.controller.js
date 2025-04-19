@@ -1,36 +1,40 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-const User = require('../models/user.model');
+const User = require("../models/user.model");
 
 // @desc Login a user
 // @route POST /api/users/login
 // @access public
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    res.status(400);
-    throw new Error('Email address and password is mandatory!');
-  }
+    if (!email || !password) {
+      res.status(400);
+      throw new Error("Email address and password is mandatory!");
+    }
 
-  const user = await User.findOne({ email });
-  if (user && (await bcrypt.compare(password, user.password))) {
-    const accessToken = jwt.sign(
-      {
-        email: user.email,
-        id: user.id,
-        role: user.role,
-      },
-      process.env.ACCESS_TOKEN_SECRET_KEY,
-      {
-        expiresIn: '6h',
-      }
-    );
-    res.status(200).json({ accessToken });
-  } else {
-    res.status(401);
-    throw new Error('Invalid credentials. Please try again!');
+    const user = await User.findOne({ email });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const accessToken = jwt.sign(
+        {
+          email: user.email,
+          id: user.id,
+          role: user.role,
+        },
+        process.env.ACCESS_TOKEN_SECRET_KEY,
+        {
+          expiresIn: "6h",
+        }
+      );
+      res.status(200).json({ accessToken });
+    } else {
+      res.status(401);
+      throw new Error("Invalid credentials. Please try again!");
+    }
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
@@ -42,14 +46,14 @@ const registerUser = async (req, res) => {
 
   if (!firstName || !lastName || !email || !phone || !password) {
     res.status(400);
-    throw new Error('Kindly fill in the mandatory details for registration.');
+    throw new Error("Kindly fill in the mandatory details for registration.");
   }
 
   const isUserAvailable = await User.findOne({ email });
 
   if (isUserAvailable) {
     res.status(400);
-    throw new Error('A user with this information already exists!');
+    throw new Error("A user with this information already exists!");
   }
 
   const saltRounds = 10;
@@ -69,7 +73,7 @@ const registerUser = async (req, res) => {
     res.json({ _id: user.id, email: user.email });
   } else {
     res.status(400);
-    throw new Error('The received user data is not valid!');
+    throw new Error("The received user data is not valid!");
   }
 };
 

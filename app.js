@@ -5,6 +5,7 @@ require('dotenv').config();
 const userRoutes = require('./routes/user.routes');
 const courseRoutes = require('./routes/course.routes');
 const lessonRoutes = require('./routes/lesson.routes');
+const admissionRoutes = require('./routes/admission.routes');
 const errorHandler = require('./middlewares/error-handler.middleware');
 const dbConnect = require('./config/db-connection.config');
 
@@ -18,10 +19,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoutes);
+app.use('/api/admissions', admissionRoutes);
 app.use(errorHandler);
 
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello, World!' })
+  res.status(200).json({ message: 'Hello, World!' });
 });
 
 app.listen(PORT, () => console.log(`Server is listening on port: ${PORT}`));
