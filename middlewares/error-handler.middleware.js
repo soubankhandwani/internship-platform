@@ -1,4 +1,4 @@
-const { constants } = require('../constants');
+const { constants } = require("../constants");
 
 const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode ? res.statusCode : 500;
@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
   switch (statusCode) {
     case constants.VALIDATION_ERROR:
       res.json({
-        title: 'Validation Failed',
+        title: "Validation Failed",
         message: err.message,
         stackTrace: err.stackTrace,
       });
@@ -14,7 +14,7 @@ const errorHandler = (err, req, res, next) => {
 
     case constants.UNAUTHORIZED:
       res.json({
-        title: 'Unauthorized',
+        title: "Unauthorized",
         message: err.message,
         stackTrace: err.stackTrace,
       });
@@ -22,7 +22,7 @@ const errorHandler = (err, req, res, next) => {
 
     case constants.FORBIDDEN:
       res.json({
-        title: 'Forbidden',
+        title: "Forbidden",
         message: err.message,
         stackTrace: err.stackTrace,
       });
@@ -30,7 +30,7 @@ const errorHandler = (err, req, res, next) => {
 
     case constants.NOT_FOUND:
       res.json({
-        title: 'Not Found',
+        title: "Not Found",
         message: err.message,
         stackTrace: err.stackTrace,
       });
@@ -38,14 +38,14 @@ const errorHandler = (err, req, res, next) => {
 
     case constants.SERVER_ERROR:
       res.json({
-        title: 'Internal Server Error',
+        title: "Internal Server Error",
         message: err.message,
         stackTrace: err.stackTrace,
       });
       break;
 
     default:
-      console.log('No error! All Good.');
+      console.log(`Default case ran: ${statusCode}`);
       break;
   }
 };

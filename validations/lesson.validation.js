@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const courseValidationSchema = Joi.object({
+const lessonValidationSchema = Joi.object({
   course_id: Joi.string().required(),
   title: Joi.string().trim().min(3).max(255).required(),
   l_number: Joi.number().integer().positive().required(),
@@ -10,8 +10,8 @@ const courseValidationSchema = Joi.object({
   content: Joi.string().trim().required(),
 });
 
-const validateCourse = (req, res, next) => {
-  const { error } = courseValidationSchema.validate(req.body, {
+const validateLesson = (req, res, next) => {
+  const { error } = lessonValidationSchema.validate(req.body, {
     abortEarly: false,
   });
 
@@ -29,4 +29,4 @@ const validateCourse = (req, res, next) => {
   next();
 };
 
-module.exports = validateCourse;
+module.exports = validateLesson;

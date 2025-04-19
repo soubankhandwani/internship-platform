@@ -1,6 +1,5 @@
 const express = require('express');
 
-const validateCourse = require('../validations/lesson.validation');
 const {
   createLesson,
   getLessons,
@@ -9,6 +8,7 @@ const {
 } = require('../controllers/lesson.controller');
 const validateToken = require('../middlewares/validate-token-handler.middleware');
 const requiredRole = require('../middlewares/check-role-handler.middleware');
+const validateLesson = require('../validations/lesson.validation');
 
 const router = express.Router();
 
@@ -19,6 +19,6 @@ router
   .put('/:id', requiredRole(['admin']), updateLesson)
   .delete('/:id', requiredRole(['admin']), deleteLesson);
 
-router.post('/', requiredRole(['admin']), validateCourse, createLesson);
+router.post('/', requiredRole(['admin']), validateLesson, createLesson);
 
 module.exports = router;
