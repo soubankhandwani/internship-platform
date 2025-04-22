@@ -15,7 +15,7 @@ const router = express.Router();
 router.use(validateToken);
 
 router
-  .get('/', requiredRole(['user', 'admin']), getCourses)
+  .get('/', getCourses)
   .post('/', requiredRole(['admin']), createCourse);
 
 router
