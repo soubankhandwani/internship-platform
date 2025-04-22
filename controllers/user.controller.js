@@ -34,6 +34,7 @@ const loginUser = async (req, res) => {
       throw new Error("Invalid credentials. Please try again!");
     }
   } catch (error) {
+    res.status(500)
     throw new Error(error.message);
   }
 };
