@@ -6,21 +6,24 @@ const {
   createCourse,
   updateCourse,
   deleteCourse,
+  getCourseWithDetails,
+  createFullCourseDetails
 } = require('../controllers/course.controller');
 const validateToken = require('../middlewares/validate-token-handler.middleware');
 const requiredRole = require('../middlewares/check-role-handler.middleware');
+const upload = require('../middlewares/upload.middleware');
 
 const router = express.Router();
 
-router.use(validateToken);
-
 router
   .get('/', getCourses)
-  .post('/', requiredRole(['admin']), createCourse);
+  .post('/', validateToken, requiredRole(['admin']), upload.single('image'), createCourse);
 
-router
-  .get('/:id', requiredRole(['user', 'admin']), getCourse)
-  .put('/:id', requiredRole(['admin']), updateCourse)
-  .delete('/:id', requiredRole(['admin']), deleteCourse);
+router.get('/full/:id', getCourseWithDetails);
+router.post('/full/:id', validateToken, requiredRole(['admin']), createFullCourseDetails);
+
+router.get('/:id', getCourse)
+  .put('/:id', validateToken, requiredRole(['admin']), updateCourse)
+  .delete('/:id', validateToken, requiredRole(['admin']), deleteCourse);
 
 module.exports = router;

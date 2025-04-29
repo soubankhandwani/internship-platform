@@ -1,6 +1,17 @@
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
+const path = require('path');
+const nodemailer = require('nodemailer');
 const Admission = require('../models/admission.model');
+const Course = require('../models/course.model');
+
+// Email transporter setup
+const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.ADMIN_EMAIL,
+        pass: process.env.ADMIN_EMAIL_PASSWORD,
+      },
+    });
 
 // @desc List all admissions
 // @route GET /api/admissions
@@ -19,37 +30,48 @@ const getAdmissions = async (req, res) => {
 // @access private [user, admin]
 const createAdmission = async (req, res) => {
   try {
-    const { email, id: userId } = req.user;
+    const { id: userId, email } = req.user;
     const { courseId } = req.body;
+    const resumePath = req.file?.path;
+    const {test} = req.body;
 
-    if (!email || !userId || !courseId) {
-      throw new Error('Course details validation failed');
+    console.log("TEST: ", test)
+    // Validation
+    if (!courseId) return res.status(400).json({ message: 'Course ID is required.' });
+    if (!resumePath) return res.status(400).json({ message: 'Resume file is required.' });
+
+    // Check for existing admission
+    const existing = await Admission.findOne({ userId, courseId });
+    if (existing) {
+      return res.status(400).json({ message: 'You have already applied for this course.' });
     }
 
-    const existingAdmission = await Admission.findOne({
-      userId,
-      courseId,
-    });
-
-    if (existingAdmission) {
-      return res
-        .status(400)
-        .json({ message: 'User is already admitted to this course.' });
-    }
-
+    // Create admission record
     const admission = await Admission.create({
       userId,
       courseId,
+      resumePath
     });
 
-    if (admission) {
-      res.status(200).json(admission);
-    } else {
-      res.status(400);
-      throw new Error('Admission creation data was invalid. Please try again!');
-    }
+    // Fetch course details for email
+    const course = await Course.findById(courseId);
+    const courseTitle = course?.title || 'Unknown Course';
+
+    // Send email to admin
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: process.env.ADMIN_EMAIL,
+      subject: `New Admission: ${email} applied for ${courseTitle}`,
+      text: `User: ${email} (ID: ${userId})\nCourse: ${courseTitle} (ID: ${courseId})`,
+      attachments: [
+        { filename: path.basename(resumePath), path: resumePath }
+      ]
+    });
+
+    res.status(201).json({ admission, message: 'Admission created and email sent.' });
   } catch (error) {
-    throw new Error(error.message);
+    console.error('Admission error:', error);
+    res.status(500).json({ message: error.message });
   }
 };
 

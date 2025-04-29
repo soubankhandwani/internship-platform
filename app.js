@@ -2,6 +2,7 @@ const express = require('express');
 require('express-async-errors');
 require('dotenv').config();
 const cors = require('cors')
+const path = require('path')
 
 const userRoutes = require('./routes/user.routes');
 const courseRoutes = require('./routes/course.routes');
@@ -14,6 +15,8 @@ dbConnect();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(
   cors({
@@ -29,7 +32,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/admissions', admissionRoutes);
-app.use(errorHandler);
+app.use('/api/email', require('./routes/email.routes'));
+// app.use(errorHandler);
 
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Hello, World!' });
