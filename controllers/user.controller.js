@@ -1,7 +1,8 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-const User = require("../models/user.model");
+const User = require('../models/user.model');
+const Admission = require('../models/admission.model');
 
 // @desc Login a user
 // @route POST /api/users/login
@@ -12,7 +13,7 @@ const loginUser = async (req, res) => {
 
     if (!email || !password) {
       res.status(400);
-      throw new Error("Email address and password is mandatory!");
+      throw new Error('Email address and password is mandatory!');
     }
 
     const user = await User.findOne({ email });
@@ -25,16 +26,16 @@ const loginUser = async (req, res) => {
         },
         process.env.ACCESS_TOKEN_SECRET_KEY,
         {
-          expiresIn: "6h",
+          expiresIn: '6h',
         }
       );
       res.status(200).json({ accessToken });
     } else {
       res.status(401);
-      throw new Error("Invalid credentials. Please try again!");
+      throw new Error('Invalid credentials. Please try again!');
     }
   } catch (error) {
-    res.status(500)
+    res.status(500);
     throw new Error(error.message);
   }
 };
@@ -47,14 +48,14 @@ const registerUser = async (req, res) => {
 
   if (!firstName || !lastName || !email || !phone || !password) {
     res.status(400);
-    throw new Error("Kindly fill in the mandatory details for registration.");
+    throw new Error('Kindly fill in the mandatory details for registration.');
   }
 
   const isUserAvailable = await User.findOne({ email });
 
   if (isUserAvailable) {
     res.status(400);
-    throw new Error("A user with this information already exists!");
+    throw new Error('A user with this information already exists!');
   }
 
   const saltRounds = 10;
@@ -74,10 +75,32 @@ const registerUser = async (req, res) => {
     res.json({ _id: user.id, email: user.email });
   } else {
     res.status(400);
-    throw new Error("The received user data is not valid!");
+    throw new Error('The received user data is not valid!');
   }
 };
 
+//@desc Check whether a user is enrolled in a course / internship
+//@route POST /api/users/check-enrollment
+//@access [user, admin]
+const checkEnrollment = async (req, res) => {
+  const courseId = req.body.courseId
+    ? req.body.courseId
+    : req.body.internshipId;
+  const { id } = req.user;
+  console.log(id);
+  if (!courseId || !id) {
+    res.status(404).json({ message: 'Failed to check user enrollment!' });
+    return;
+  }
+
+  const result = await Admission.findOne({ userId: id, courseId });
+  if (!result) {
+    res.status(200).json({ message: false });
+    return;
+  }
+
+  res.status(200).json({ message: true });
+};
 // @desc Private test route
 // @route POST /api/users/private
 // @access private
@@ -85,4 +108,4 @@ const privateTestRoute = (req, res) => {
   res.json(req.user);
 };
 
-module.exports = { loginUser, registerUser, privateTestRoute };
+module.exports = { loginUser, registerUser, checkEnrollment, privateTestRoute };

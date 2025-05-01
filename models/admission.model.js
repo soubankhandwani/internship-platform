@@ -14,6 +14,10 @@ const admissionSchema = Schema(
       required: true,
     },
 
+    resumePath: {
+      type: String,
+    },
+
     admissionDate: {
       type: Date,
       default: Date.now,
